@@ -102,21 +102,21 @@ def get(url):
     """
     用 GET 请求 url 并返回响应
     """
-    # 建立连接
+    # 建立连接 （解析 url、获取 ip、通过 3 次握手建立 tcp 连接）
     protocol, host, port, path = parsed_url(url)
     s = socket_by_protocol(protocol)
     s.connect((host, port))
 
-    # 发送请求
+    # 发送请求 （建立连接后，浏览器自动添加请求中必要的 headers，然后发送请求）
     request = 'GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n'.format(path, host)
     encoding = 'utf-8'
     s.sendall(request.encode(encoding))
 
-    # 获取响应的数据
+    # 获取响应的数据 （获取服务器的响应，然后解析，将数据传递到上层的 jquery）
     response = response_by_socket(s)
     r = response.decode(encoding)
 
-    # 解析响应的数据，如果是重定向，则重新发起请求
+    # 解析响应的数据，如果是重定向，则重新发起请求 （如果是重定向，则自动跳转到重定向的链接）
     status_code, headers, body = parsed_response(r)
     if status_code in [301, 302]:
         url = headers['Location']
@@ -129,6 +129,7 @@ def main():
     """
     程序入口
     """
+    # （浏览器中输入 url）
     url = 'http://movie.douban.com/top250'
     status_code, headers, body = get(url)
 
