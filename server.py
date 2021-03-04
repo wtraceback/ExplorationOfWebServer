@@ -1,15 +1,6 @@
 import socket
 
-
-def route_index():
-    """
-    主页的处理函数, 返回主页的响应
-    """
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
-    body = '<h1>Hello World</h1>'
-    r = header + body
-
-    return r.encode('utf-8')
+from routes import route_index
 
 
 def error(code=404):
@@ -37,6 +28,23 @@ def response_for_path(path):
     return response()
 
 
+def receive_by_request(conn):
+    """
+    参数是一个 socket 示例
+    返回这个 socket 读取的所有请求的数据
+    """
+    req = b''
+    buffer_size = 1024
+    while True:
+        # recv 可以接收客户端发送过来的数据，返回值是一个 bytes 类型
+        r = conn.recv(buffer_size)
+        req += r
+        if len(r) < buffer_size:
+            break
+
+    return req
+
+
 def run(host='127.0.0.1', port=3000):
     """
     启动服务器
@@ -44,17 +52,18 @@ def run(host='127.0.0.1', port=3000):
     # 初始化 socket，使用 with 可以保证程序中断的时候正确关闭 socket 释放占用的端口
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))        # 套接字绑定的 IP 与 端口
-        print('Server started.')
+        print('Server start at', '{}:{}.'.format(host, port))
 
         # 用一个无限循环来处理请求
         while True:
             s.listen(5)
             connection, address = s.accept()        # 当有客户端过来连接的时候, s.accept 函数就会返回 2 个值
-            print('Connected by {}, ip is {}'.format(connection, address))
+            print('Connected by {}\nip is {}'.format(connection, address))
 
-            request = connection.recv(1024)         # recv 可以接收客户端发送过来的数据，返回值是一个 bytes 类型
+            # 获取请求的数据
+            request = receive_by_request(connection)
             request = request.decode('utf-8')
-            print('request is {}'.format(request))
+            print('request is:\n {}'.format(request))
 
             try:
                 path = request.split()[1]
