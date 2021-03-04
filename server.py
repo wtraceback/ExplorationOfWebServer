@@ -1,9 +1,22 @@
 import socket
 
 from routes import route_index
+from routes import route_static
 
 
-def error(code=404):
+# 定义一个 class 用于保存请求的数据
+class Request(object):
+    def __init__(self):
+        self.method = 'GET'
+        self.path = ''
+        self.query = {}
+        self.body = ''
+
+
+request = Request()
+
+
+def error(request, code=404):
     """
     根据 code 返回不同的错误响应
     """
@@ -14,18 +27,42 @@ def error(code=404):
     return e.get(code, b'')
 
 
+def parsed_path(path):
+    """
+    根据 path 将 路径 和 参数 解析出来
+    """
+    i = path.find('?')
+    if i == -1:
+        return path, {}
+    else:
+        path, query_string = path.split('?', 1)
+        args = query_string.split('&')
+        query = {}
+        for arg in args:
+            k, v = arg.split('=')
+            query[k] = v
+
+        return path, query
+
+
 def response_for_path(path):
     """
     根据 path 调用相应的处理函数
     没有处理的 path 就返回 错误处理
     """
+    path, query = parsed_path(path)
+    request.path = path
+    request.query = query
+    print('path is {} and query is {}'.format(path, query))
+
     r = {
         '/': route_index,
+        '/static': route_static
     }
 
     response = r.get(path, error)
 
-    return response()
+    return response(request)
 
 
 def receive_by_request(conn):
@@ -61,12 +98,12 @@ def run(host='127.0.0.1', port=3000):
             print('Connected by {}\nip is {}'.format(connection, address))
 
             # 获取请求的数据
-            request = receive_by_request(connection)
-            request = request.decode('utf-8')
-            print('request is:\n {}'.format(request))
+            r = receive_by_request(connection)
+            r = r.decode('utf-8')
+            print('request is:\n {}'.format(r))
 
             try:
-                path = request.split()[1]
+                path = r.split()[1]
                 # 用 response_for_path 函数来得到 path 对应的响应内容
                 response = response_for_path(path)
                 # response = b'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n<h1>Hello World!</h1>'
