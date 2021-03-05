@@ -1,7 +1,8 @@
 import socket
+import urllib.parse
 
-from routes import route_index
 from routes import route_static
+from routes import route_dict
 
 
 # 定义一个 class 用于保存请求的数据
@@ -11,6 +12,26 @@ class Request(object):
         self.path = ''
         self.query = {}
         self.body = ''
+
+    def form(self):
+        """
+        form 函数用于把 post 请求的 body 解析为一个字典并返回
+        post 请求的 body 为
+            firstname=Mickey&lastname=Mouse
+            firstname=Micke+y&lastname=%26Mouse
+
+        #解决地址栏中 中文编码问题
+            typename = urllib.parse.quote(index)
+        #解码
+            retypename = urllib.parse.unquote(typename)
+        """
+        args = self.body.split('&')
+        f = {}
+        for arg in args:
+            k, v = arg.split('=')
+            f[k] = urllib.parse.unquote(v)
+
+        return f
 
 
 request = Request()
@@ -56,10 +77,12 @@ def response_for_path(path):
     print('path is {} and query is {}'.format(path, query))
 
     r = {
-        '/': route_index,
+        # '/': route_index,
         '/static': route_static
     }
 
+    # 往 r 中添加 新的路由
+    r.update(route_dict)
     response = r.get(path, error)
 
     return response(request)
@@ -102,14 +125,19 @@ def run(host='127.0.0.1', port=3000):
             r = r.decode('utf-8')
             print('request is:\n {}'.format(r))
 
-            try:
-                path = r.split()[1]
-                # 用 response_for_path 函数来得到 path 对应的响应内容
-                response = response_for_path(path)
-                # response = b'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n<h1>Hello World!</h1>'
-                connection.sendall(response)            # 用 sendall 发送给客户端
-            except Exception as e:
-                print('error', e)
+            # Chrome 浏览器会发送空请求导致 split 得到空 list， 所以需要判断一下，防止程序崩溃
+            if len(r.split()) < 2:
+                continue
+
+            # 通过切分获取请求数据中的相关信息
+            path = r.split()[1]
+            request.method = r.split()[0]
+            request.body = r.split('\r\n\r\n', 1)[1]
+
+            # 用 response_for_path 函数来得到 path 对应的响应内容
+            response = response_for_path(path)
+            # response = b'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n<h1>Hello World!</h1>'
+            connection.sendall(response)            # 用 sendall 发送给客户端
 
             connection.close()                          # 发送完毕后, 关闭本次连接
 
