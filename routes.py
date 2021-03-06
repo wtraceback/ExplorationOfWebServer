@@ -40,7 +40,7 @@ def route_static(request):
     filename = request.query.get('file', '')
     body, is_error = render_static_file(filename)
 
-    # 存在一个问题，如果是空的文件，则读取到的也是 b''
+    # 判断是否能读取到静态文件，根据情况来返回对应的 http 响应
     if is_error:
         header = b'HTTP/1.1 404 NOT FOUND\r\nContent-Type: text/html; charset=UTF-8\r\n'
     else:
@@ -78,10 +78,11 @@ def route_login(request):
     """
     header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
     if request.method == 'POST':
-        username = 'test'
-        password = '123456'
         form = request.form()
-        if form.get('username', '') == username and form.get('password', '') == password:
+        username = form.get('username', '')
+        password = form.get('password', '')
+
+        if is_include_account(username, password):
             result = '登陆成功'
         else:
             result = '用户名或密码错误'
@@ -95,7 +96,45 @@ def route_login(request):
     return r.encode('utf-8')
 
 
+def route_register(request):
+    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+    if request.method == 'POST':
+        form = request.form()
+        username = form.get('username', '')
+        password = form.get('password', '')
+        new_user = {
+            'username': username,
+            'password': password
+        }
+
+        user_list.append(new_user)
+        result = '注册成功'
+    else:
+        result = ''
+
+    body = render_template('register.html')
+    body = body.replace('{{result}}', result)
+
+    r = header + '\r\n' + body
+
+    return r.encode('utf-8')
+
+
+# 存储了所有的 user
+user_list = []
+def is_include_account(username, password):
+    """
+    判断已存在的用户列表中是否存在当前的登录用户
+    """
+    for a in user_list:
+        if a.get('username', False) == username and a.get('password', False) == password:
+            return True
+
+    return False
+
+
 route_dict = {
     '/': route_index,
     '/login': route_login,
+    '/register': route_register,
 }
