@@ -1,3 +1,6 @@
+from models import User
+
+
 def render_static_file(filename):
     path = 'static/' + filename
     img_suffix = ['bmp', 'jpg', 'jpeg', 'png', 'gif']
@@ -79,10 +82,8 @@ def route_login(request):
     header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
     if request.method == 'POST':
         form = request.form()
-        username = form.get('username', '')
-        password = form.get('password', '')
-
-        if is_include_account(username, password):
+        u = User.new(form)
+        if u.validate_login():
             result = '登陆成功'
         else:
             result = '用户名或密码错误'
@@ -100,15 +101,12 @@ def route_register(request):
     header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
     if request.method == 'POST':
         form = request.form()
-        username = form.get('username', '')
-        password = form.get('password', '')
-        new_user = {
-            'username': username,
-            'password': password
-        }
-
-        user_list.append(new_user)
-        result = '注册成功'
+        u = User.new(form)
+        if u.validate_register():
+            u.save()
+            result = '注册成功'
+        else:
+            result = '用户名或者密码长度必须大于2'
     else:
         result = ''
 
@@ -118,19 +116,6 @@ def route_register(request):
     r = header + '\r\n' + body
 
     return r.encode('utf-8')
-
-
-# 存储了所有的 user
-user_list = []
-def is_include_account(username, password):
-    """
-    判断已存在的用户列表中是否存在当前的登录用户
-    """
-    for a in user_list:
-        if a.get('username', False) == username and a.get('password', False) == password:
-            return True
-
-    return False
 
 
 route_dict = {
