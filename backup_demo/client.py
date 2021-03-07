@@ -98,12 +98,27 @@ def parsed_response(r):
     return status_code, headers, body
 
 
-def get(url):
+def path_with_query(path, query):
+    '''
+    path 是一个字符串
+    query 是一个字典
+    返回一个拼接后的 带参数的路径
+    '''
+    r = path + '?'
+
+    for key, value in query.items():
+        r += '{}={}&'.format(key, value)
+
+    return r[:-1]
+
+
+def get(url, query={}):
     """
     用 GET 请求 url 并返回响应
     """
     # 建立连接 （解析 url、获取 ip、通过 3 次握手建立 tcp 连接）
     protocol, host, port, path = parsed_url(url)
+    path = path_with_query(path, query)
     s = socket_by_protocol(protocol)
     s.connect((host, port))
 
