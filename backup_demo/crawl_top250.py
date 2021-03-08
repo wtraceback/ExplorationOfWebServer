@@ -201,12 +201,10 @@ def parse_query_to_dict(query):
     return r
 
 
-def main():
+def save_url_data(url):
     """
-    程序入口
+    根据给定的 url 去提取数据
     """
-    # （浏览器中输入 url）
-    url = 'http://movie.douban.com/top250'
     status_code, headers, body = get(url)
 
     print('status_code is {}'.format(status_code))
@@ -225,6 +223,16 @@ def main():
         save_to_file(data)
 
     print('保存完毕.')
+
+
+def main():
+    """
+    程序入口
+    """
+    # （浏览器中输入 url）
+    # url = 'http://movie.douban.com/top250'
+    url = 'https://movie.douban.com/top250'
+    save_url_data(url)
 
 
 if __name__ == '__main__':
