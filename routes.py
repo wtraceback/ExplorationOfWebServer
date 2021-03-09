@@ -1,4 +1,4 @@
-from models import User
+from models.user import User
 
 
 def render_static_file(filename):
