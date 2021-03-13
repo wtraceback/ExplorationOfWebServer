@@ -12,6 +12,39 @@ class Request(object):
         self.path = ''
         self.query = {}
         self.body = ''
+        self.headers = {}
+        self.cookies = {}
+
+    def set_cookies(self):
+        """
+        从 self.headers 的 cookie 字段中获取 cookie 的值并生成字典赋值给 self.cookie
+        Cookie: PSTM=1612061500; BD_UPN=12314353; ispeed_lsm=2; delPer=0
+        """
+        cookies = self.headers.get('Cookie', '')
+        cs = cookies.split('; ')
+        for c in cs:
+            if '=' in c:
+                k, v = c.split('=', 1)
+                self.cookies[k] = v
+
+    def set_headers(self, header):
+        """
+        根据请求的 headers 将其解析出来
+        [
+            'Connection: keep-alive',
+            'Pragma: no-cache',
+            'Cache-Control: no-cache'
+        ]
+        """
+        lines = header
+        r = {}
+        for line in lines:
+            k, v = line.split(': ', 1)
+            self.headers[k] = v
+
+        # 清除 cookie
+        self.cookies = {}
+        self.set_cookies()
 
     def form(self):
         """
@@ -130,9 +163,13 @@ def run(host='127.0.0.1', port=3000):
                 continue
 
             # 通过切分获取请求数据中的相关信息
-            path = r.split()[1]
-            request.method = r.split()[0]
-            request.body = r.split('\r\n\r\n', 1)[1]
+
+            req_line = r.split()
+            path = req_line[1]
+            request.method = req_line[0]
+            h_b_line = r.split('\r\n\r\n', 1)
+            request.set_headers(h_b_line[0].split('\r\n')[1:])
+            request.body = h_b_line[1]
 
             # 用 response_for_path 函数来得到 path 对应的响应内容
             response = response_for_path(path)
