@@ -6,6 +6,9 @@ class User(Model):
     用户账户类
     """
     def __init__(self, form):
+        self.id = form.get('id', None)
+        if self.id is not None:
+            self.id = int(self.id)
         self.username = form.get('username', '')
         self.password = form.get('password', '')
 

@@ -116,7 +116,26 @@ class Model(object):
         save 函数用于把一个 Model 的实例保存到文件中
         """
         models = self.all()
-        models.append(self)
+
+        if self.__dict__.get('id') is None:
+            # 注册用户的时候
+            if len(models) > 0:
+                # 在已存在的数据中找到最大的 id，并在其基础上加 1
+                # id 为整数
+                self.id = models[-1].id + 1
+            else:
+                # 第一条数据的 id 默认为 1
+                self.id = 1
+
+            models.append(self)
+        else:
+            # 更改已存在的用户信息
+            # 在更新用户信息画面，后端给前端传递了对应的 user id，前端请求时又传回来并设置了 request 对象的 id
+            # enumerate 枚举    获取下标以及元素本身
+            for i, m in enumerate(models):
+                if m.id == self.id:
+                    models[i] = self
+                    break
 
         # __dict__ 是包含了对象所有属性和值的字典
         data = [m.__dict__ for m in models]
