@@ -67,6 +67,50 @@ class Model(object):
 
         return ms
 
+    @classmethod
+    def find_by(cls, **kwargs):
+        """
+        根据参数，返回一个 User 实例
+        如果查找到有多条这样的数据, 返回第一个
+        如果没这样的数据, 返回 None
+        """
+        key, value = '', ''
+        # 获取传入参数的最后一个，因为字典是乱序的，所以无法确定最后一个是哪个
+        for k, v in kwargs.items():
+            key, value = k, v
+
+        models = cls.all()
+        # 根据传入的参数查找 models 中对应的实例
+        for i in models:
+            # getattr(i, key) 等价于 i.__dict__[k]，不过如果不存在这个属性值，那么将会抛出错误
+            # getattr() 函数用于返回一个对象属性值
+            if i.__dict__.get(key, False) == value:
+                return i
+
+        return None
+
+    @classmethod
+    def find_all(cls, **kwargs):
+        """
+        根据参数，以 list 的形式返回所有符合参数的值的 User 实例
+        如果没这样的数据, 返回 []
+        """
+        key, value = '', ''
+        # 获取传入参数的最后一个，因为字典是乱序的，所以无法确定最后一个是哪个
+        for k, v in kwargs.items():
+            key, value = k, v
+
+        r = []
+        models = cls.all()
+        # 根据传入的参数查找 models 中对应的实例
+        for i in models:
+            # getattr(i, key) 等价于 i.__dict__[k]，不过如果不存在这个属性值，那么将会抛出错误
+            # getattr() 函数用于返回一个对象属性值
+            if i.__dict__.get(key, False) == value:
+                r.append(i)
+
+        return r
+
     def save(self):
         """
         save 函数用于把一个 Model 的实例保存到文件中

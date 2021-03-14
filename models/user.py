@@ -13,16 +13,19 @@ class User(Model):
         """
         验证登录的账户是否存在
         """
-        models = self.all()
-        # __dict__ 是包含了对象所有属性和值的字典
-        user_list = [m.__dict__ for m in models]
-        # user_list = [{'username': 'admin', 'password': '123456'}, {'username': 'test', 'password': '123456'}]
+        # models = self.all()
+        # # __dict__ 是包含了对象所有属性和值的字典
+        # user_list = [m.__dict__ for m in models]
+        # # user_list = [{'username': 'admin', 'password': '123456'}, {'username': 'test', 'password': '123456'}]
+        #
+        # for a in user_list:
+        #     if a.get('username', False) == self.username and a.get('password', False) == self.password:
+        #         return True
+        #
+        # return False
 
-        for a in user_list:
-            if a.get('username', False) == self.username and a.get('password', False) == self.password:
-                return True
-
-        return False
+        u = User.find_by(username=self.username)
+        return u is not None and u.password == self.password
 
     def validate_register(self):
         """
