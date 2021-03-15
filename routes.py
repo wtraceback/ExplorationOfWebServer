@@ -1,4 +1,29 @@
+import random
+
 from models.user import User
+
+
+# session 在服务器端实现过期功能
+session = {
+    'sessionid': {
+        'username': 'test',
+        'expired': '2021-03-14 16:07:08',
+    }
+}
+
+
+def random_str():
+    """
+    用于生成一个随机的字符串，当做 sessionid
+    """
+    seed = 'abcdefghijklmnopqrstuvwxyz1234567890'
+    r = []
+    for i in range(16):
+        # random.randint(a, b) 返回随机整数 N 满足 a <= N <= b
+        random_index = random.randint(0, len(seed) - 1)
+        r.append(seed[random_index])
+
+    return ''.join(r)
 
 
 def render_static_file(filename):
@@ -64,13 +89,41 @@ def render_template(filename):
         return f.read()
 
 
+def response_with_headers(headers):
+    """
+    response 的响应头
+    """
+    header = 'HTTP/1.1 200 OK\r\n'
+
+    headers_list = ['{}: {}\r\n'.format(k, v) for k, v in headers.items()]
+    header += ''.join(headers_list)
+
+    return header
+
+
+def current_user(request):
+    """
+    返回当前访问者的用户名
+    """
+    session_id = request.cookies.get('user', '')
+    username = session.get(session_id, '【游客】')
+
+    return username
+
+
 def route_index(request):
     """
     主页的处理函数, 返回主页的响应
     """
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+    headers = {
+        'Content-Type': 'text/html; charset=UTF-8',
+    }
+
+    header = response_with_headers(headers)
     body = render_template('index.html')
-    r = header + body
+    username = current_user(request)
+    body = body.replace('{{username}}', username)
+    r = header + '\r\n' + body
 
     return r.encode('utf-8')
 
@@ -79,19 +132,33 @@ def route_login(request):
     """
     登录页面
     """
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+    headers = {
+        'Content-Type': 'text/html; charset=UTF-8',
+    }
+
+    username = current_user(request)
+    template_name = 'login.html'
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
         if u.validate_login():
-            result = '登陆成功'
+            # 设置一个随机字符串当做 token 来使用
+            session_id = random_str()
+            session[session_id] = u.username
+            headers['Set-Cookie'] = 'user={}'.format(session_id)
+
+            username = u.username
+            template_name = 'index.html'
+            result = '登录成功'
         else:
             result = '用户名或密码错误'
     else:
         result = ''
 
-    body = render_template('login.html')
+    header = response_with_headers(headers)
+    body = render_template(template_name)
     body = body.replace('{{result}}', result)
+    body = body.replace('{{username}}', username)
     r = header + '\r\n' + body
 
     return r.encode('utf-8')
