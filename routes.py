@@ -5,10 +5,10 @@ from models.user import User
 
 # session 在服务器端实现过期功能
 session = {
-    'sessionid': {
-        'username': 'test',
-        'expired': '2021-03-14 16:07:08',
-    }
+    # 'sessionid': {
+    #     'username': 'test',
+    #     'expired': '2021-03-14 16:07:08',
+    # }
 }
 
 
@@ -89,16 +89,49 @@ def render_template(filename):
         return f.read()
 
 
-def response_with_headers(headers):
+def response_with_headers(headers={}, code=200):
     """
     response 的响应头
     """
-    header = 'HTTP/1.1 200 OK\r\n'
+    code_description = {
+        '200': 'OK',
+        '301': 'Moved Permanently',
+        '302': 'Found',
+        '400': 'Bad Request',
+        '401': 'Unauthorized',
+        '403': 'Forbidden',
+        '404': 'Not Found',
+        '500': 'Internal Server Error',
+    }
 
-    headers_list = ['{}: {}\r\n'.format(k, v) for k, v in headers.items()]
+    h = {
+        'Content-Type': 'text/html; charset=UTF-8',
+    }
+
+    h.update(headers)
+
+    str_code = str(code)
+    header = 'HTTP/1.1 {} {}\r\n'.format(str_code, code_description.get(str_code, 'OK'))
+
+    headers_list = ['{}: {}\r\n'.format(k, v) for k, v in h.items()]
     header += ''.join(headers_list)
 
     return header
+
+
+def redirect(url):
+    """
+    重定向函数
+    浏览器在收到 302 响应时，在 HTTP header 里面找 Location 字段并获取一个 url，然后自动请求新的 url
+    """
+    headers = {
+        'Location': url,
+    }
+
+    # 增加 Location 字段并生成 HTTP 响应返回，302 响应没有 HTTP body 部分
+    r = response_with_headers(headers, code=302) + '\r\n'
+
+    return r.encode('utf-8')
 
 
 def current_user(request):
@@ -115,11 +148,7 @@ def route_index(request):
     """
     主页的处理函数, 返回主页的响应
     """
-    headers = {
-        'Content-Type': 'text/html; charset=UTF-8',
-    }
-
-    header = response_with_headers(headers)
+    header = response_with_headers()
     body = render_template('index.html')
     username = current_user(request)
     body = body.replace('{{username}}', username)
@@ -130,33 +159,27 @@ def route_index(request):
 
 def route_login(request):
     """
-    登录页面
+    登录处理
     """
-    headers = {
-        'Content-Type': 'text/html; charset=UTF-8',
-    }
-
     username = current_user(request)
-    template_name = 'login.html'
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
         if u.validate_login():
             # 设置一个随机字符串当做 token 来使用
-            session_id = random_str()
-            session[session_id] = u.username
-            headers['Set-Cookie'] = 'user={}'.format(session_id)
+            # session_id = random_str()
+            # session[session_id] = u.username
+            # headers['Set-Cookie'] = 'user={}'.format(session_id)
 
-            username = u.username
-            template_name = 'index.html'
-            result = '登录成功'
+            # TODO: 登录成功后，使用 redirect 跳转的响应中没有包含 Set-Cookie 字段
+            return redirect('/')
         else:
             result = '用户名或密码错误'
     else:
         result = ''
 
-    header = response_with_headers(headers)
-    body = render_template(template_name)
+    header = response_with_headers()
+    body = render_template('login.html')
     body = body.replace('{{result}}', result)
     body = body.replace('{{username}}', username)
     r = header + '\r\n' + body
@@ -165,7 +188,9 @@ def route_login(request):
 
 
 def route_register(request):
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+    """
+    注册处理
+    """
     if request.method == 'POST':
         form = request.form()
         u = User.new(form)
@@ -177,6 +202,7 @@ def route_register(request):
     else:
         result = ''
 
+    header = response_with_headers()
     body = render_template('register.html')
     body = body.replace('{{result}}', result)
 

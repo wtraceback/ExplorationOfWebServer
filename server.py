@@ -36,6 +36,8 @@ class Request(object):
             'Cache-Control: no-cache'
         ]
         """
+        # 清空 headers
+        self.headers = {}
         lines = header
         r = {}
         for line in lines:
