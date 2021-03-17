@@ -89,7 +89,7 @@ def render_template(filename):
         return f.read()
 
 
-def response_with_headers(headers={}, code=200):
+def response_with_headers(headers=None, code=200):
     """
     response 的响应头
     """
@@ -108,7 +108,8 @@ def response_with_headers(headers={}, code=200):
         'Content-Type': 'text/html; charset=UTF-8',
     }
 
-    h.update(headers)
+    if headers is not None:
+        h.update(headers)
 
     str_code = str(code)
     header = 'HTTP/1.1 {} {}\r\n'.format(str_code, code_description.get(str_code, 'OK'))
@@ -119,17 +120,23 @@ def response_with_headers(headers={}, code=200):
     return header
 
 
-def redirect(url):
+def redirect(url, headers=None):
     """
     重定向函数
     浏览器在收到 302 响应时，在 HTTP header 里面找 Location 字段并获取一个 url，然后自动请求新的 url
+    HTTP/1.1 302 xxx
+    Location: /
+
     """
-    headers = {
+    h = {
         'Location': url,
     }
 
+    if headers is not None:
+        h.update(headers)
+
     # 增加 Location 字段并生成 HTTP 响应返回，302 响应没有 HTTP body 部分
-    r = response_with_headers(headers, code=302) + '\r\n'
+    r = response_with_headers(h, code=302) + '\r\n'
 
     return r.encode('utf-8')
 
@@ -144,6 +151,23 @@ def current_user(request):
     return username
 
 
+def login_required(route_func):
+    """
+    验证登录权限的装饰器
+    """
+    def func(request):
+        username = current_user(request)
+        u = User.find_by(username=username)
+
+        if u is None:
+            return redirect('/login')
+
+        return route_func(request)
+
+    return func
+
+
+@login_required
 def route_index(request):
     """
     主页的处理函数, 返回主页的响应
@@ -167,12 +191,12 @@ def route_login(request):
         u = User.new(form)
         if u.validate_login():
             # 设置一个随机字符串当做 token 来使用
-            # session_id = random_str()
-            # session[session_id] = u.username
-            # headers['Set-Cookie'] = 'user={}'.format(session_id)
+            session_id = random_str()
+            session[session_id] = u.username
+            headers = {}
+            headers['Set-Cookie'] = 'user={}'.format(session_id)
 
-            # TODO: 登录成功后，使用 redirect 跳转的响应中没有包含 Set-Cookie 字段
-            return redirect('/')
+            return redirect('/', headers=headers)
         else:
             result = '用户名或密码错误'
     else:
