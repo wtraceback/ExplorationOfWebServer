@@ -1,6 +1,20 @@
 import random
+import time
 
 from models.user import User
+
+
+def log(*args, **kwargs):
+    """
+    把 log 记录写进文件中
+    """
+    # 使用 Python 的 time 模块来格式化日期和时间
+    # 使用 time 模块的 strftime 方法来格式化日期；time.strftime(format[, t])
+    # 格式化成 2021-03-18 08:33:04 形式
+    dt = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    with open('logs/demo.log', 'a', encoding='utf-8') as f:
+        # print(*objects, sep=' ', end='\n', file=sys.stdout, flush=False)
+        print(dt, *args, file=f, **kwargs)
 
 
 # session 在服务器端实现过期功能

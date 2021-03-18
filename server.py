@@ -3,6 +3,7 @@ import urllib.parse
 
 from routes import route_static
 from routes import route_dict
+from utils import log
 
 
 # 定义一个 class 用于保存请求的数据
@@ -109,7 +110,7 @@ def response_for_path(path):
     path, query = parsed_path(path)
     request.path = path
     request.query = query
-    print('path is {} and query is {}'.format(path, query))
+    log('path is {} and query is {}'.format(path, query))
 
     r = {
         # '/': route_index,
@@ -153,12 +154,13 @@ def run(host='127.0.0.1', port=3000):
         while True:
             s.listen(5)
             connection, address = s.accept()        # 当有客户端过来连接的时候, s.accept 函数就会返回 2 个值
-            print('Connected by {}\nip is {}'.format(connection, address))
+            print('New client connection {}'.format(address))
+            log('Connected by {}\nip is {}'.format(connection, address))
 
             # 获取请求的数据
             r = receive_by_request(connection)
             r = r.decode('utf-8')
-            print('request is:\n {}'.format(r))
+            log('request is:\n {}'.format(r))
 
             # Chrome 浏览器会发送空请求导致 split 得到空 list， 所以需要判断一下，防止程序崩溃
             if len(r.split()) < 2:
