@@ -1,5 +1,7 @@
 import random
 import time
+from jinja2 import FileSystemLoader, Environment
+import os.path
 
 from models.user import User
 
@@ -31,8 +33,7 @@ def login_required(route_func):
     验证登录权限的装饰器
     """
     def func(request):
-        username = current_user(request)
-        u = User.find_by(username=username)
+        u = current_user(request)
 
         if u is None:
             return redirect('/login')
@@ -68,9 +69,10 @@ def current_user(request):
     返回当前访问者的用户名
     """
     session_id = request.cookies.get('user', '')
-    username = session.get(session_id, '【游客】')
+    user_id = int(session.get(session_id, '-1'))
+    u = User.find_by(id=user_id)
 
-    return username
+    return u
 
 
 def response_with_headers(headers=None, code=200):
@@ -104,6 +106,16 @@ def response_with_headers(headers=None, code=200):
     return header
 
 
+def http_response(body, headers=None, code=200):
+    """
+    返回 response 相关的信息
+    """
+    header = response_with_headers(headers, code)
+    r = header + '\r\n' + body
+
+    return r.encode('utf-8')
+
+
 def random_str():
     """
     用于生成一个随机的字符串，当做 sessionid
@@ -116,3 +128,30 @@ def random_str():
         r.append(seed[random_index])
 
     return ''.join(r)
+
+
+# __file__ 是当前文件的名字
+# 获取当前文件所在的路径，用于得到加载模板的目录
+path = '{}/templates/'.format(os.path.dirname(__file__))
+# 创建一个加载器, jinja2 会从这个目录中加载模板
+loader = FileSystemLoader(path)
+# 用加载器创建一个环境, 有了它才能读取模板文件
+env = Environment(loader=loader)
+
+
+def render_template(path, **kwargs):
+    """
+    本函数接受一个路径和一系列参数
+    加载模板
+    渲染
+    返回渲染后的 html 字符串
+    调用：render_template('demo.html', name='Test', result='测试结果')
+    """
+    # template = env.get_template('demo.html')
+    # name='Test'
+    # r = template.render(name=name, result='测试结果')
+
+    template = env.get_template(path)       # 调用 get_template() 方法加载模板
+    r = template.render(**kwargs)           # 调用 render() 方法渲染模板
+
+    return r

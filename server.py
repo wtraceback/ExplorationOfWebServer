@@ -1,8 +1,9 @@
 import socket
 import urllib.parse
 
-from routes import route_static
 from routes import route_dict
+from routes_auth import route_dict as auth_route_dict
+from routes_static import route_dict as static_route_dict
 from utils import log
 
 
@@ -114,11 +115,14 @@ def response_for_path(path):
 
     r = {
         # '/': route_index,
-        '/static': route_static
+        # '/static': static
     }
 
     # 往 r 中添加 新的路由
     r.update(route_dict)
+    r.update(auth_route_dict)
+    r.update(static_route_dict)
+
     response = r.get(path, error)
 
     return response(request)
