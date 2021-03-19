@@ -4,6 +4,7 @@ import urllib.parse
 from routes import route_dict
 from routes_auth import route_dict as auth_route_dict
 from routes_static import route_dict as static_route_dict
+from routes_todo import route_dict as todo_route_dict
 from utils import log
 
 
@@ -122,6 +123,7 @@ def response_for_path(path):
     r.update(route_dict)
     r.update(auth_route_dict)
     r.update(static_route_dict)
+    r.update(todo_route_dict)
 
     response = r.get(path, error)
 

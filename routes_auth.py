@@ -1,5 +1,5 @@
 from models.user import User
-from utils import random_str, session, current_user, response_with_headers, \
+from utils import random_str, session, response_with_headers, \
                     redirect, login_required, render_template, http_response
 
 
@@ -9,7 +9,7 @@ def login(request):
     """
     if request.method == 'POST':
         form = request.form()
-        u = User.new(form)
+        u = User(form)
         if u.validate_login():
             user = User.find_by(username=u.username)
             # 设置一个随机字符串当做 token 来使用
@@ -36,7 +36,7 @@ def register(request):
     """
     if request.method == 'POST':
         form = request.form()
-        u = User.new(form)
+        u = User(form)
         if u.validate_register():
             u.save()
             result = '注册成功'

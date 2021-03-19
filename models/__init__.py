@@ -48,22 +48,13 @@ class Model(object):
         return path
 
     @classmethod
-    def new(cls, form):
-        """
-        相当于创建一个实例，如：User(form)
-        """
-        m = cls(form)
-
-        return m
-
-    @classmethod
     def all(cls):
         """
         得到一个类的所有存储的实例
         """
         path = cls.db_path()
         models = load(path)
-        ms = [cls.new(m) for m in models]
+        ms = [cls(m) for m in models]
 
         return ms
 
@@ -110,6 +101,26 @@ class Model(object):
                 r.append(i)
 
         return r
+
+    @classmethod
+    def delete(cls, id):
+        """
+        根据 id 来删除对应的数据
+        """
+        models = cls.all()
+        index = -1
+        for i, m in enumerate(models):
+            if m.id == id:
+                index = i
+                break
+
+        if index == -1:
+            pass
+        else:
+            models.pop(index)
+            data = [m.__dict__ for m in models]
+            path = cls.db_path()
+            save(data, path)
 
     def save(self):
         """
