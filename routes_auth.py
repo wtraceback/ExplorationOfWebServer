@@ -25,7 +25,7 @@ def login(request):
     else:
         result = ''
 
-    body = render_template('login.html')
+    body = render_template('login.html', result=result)
 
     return http_response(body)
 

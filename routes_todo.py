@@ -1,5 +1,6 @@
-from utils import render_template, http_response, redirect
+import time
 
+from utils import render_template, http_response, redirect
 from models.todo import Todo
 
 
@@ -37,8 +38,32 @@ def todo_delete(request):
     return redirect('/todo')
 
 
+def todo_edit(request):
+    """
+    进入 todo 画面
+    更新一个 todo
+    """
+    todo_id = int(request.query.get('id', -1))
+    todo = Todo.find_by(id=todo_id)
+
+    if request.method == 'POST':
+        # 更新
+        # 把 post 请求的 body 解析为一个字典
+        form = request.form()
+        todo.task = form.get('task')
+        todo.updated_time = int(time.time())
+        todo.save()
+
+        return redirect('/todo')
+
+    body = render_template('todo/edit.html', todo=todo)
+
+    return http_response(body)
+
+
 route_dict = {
     '/todo': todo_index,
     '/todo/add': todo_add,
     '/todo/delete': todo_delete,
+    '/todo/edit': todo_edit,
 }
