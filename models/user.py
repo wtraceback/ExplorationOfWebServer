@@ -11,6 +11,7 @@ class User(Model):
             self.id = int(self.id)
         self.username = form.get('username', '')
         self.password = form.get('password', '')
+        self.role = int(form.get('role', 10))
 
     def validate_login(self):
         """
@@ -35,3 +36,10 @@ class User(Model):
         验证注册的数据是否符合规定
         """
         return len(self.username) > 2 and len(self.password) > 2
+
+    def is_admin(self):
+        """
+        判断当前的登录用户是否是管理员权限
+        1 为管理员权限
+        """
+        return self.role == 1

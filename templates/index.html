@@ -6,12 +6,15 @@
     </head>
     <body>
         <h1>Hello World</h1>
-        <h2>你好哇~ {{ username }}</h2>
+        <h2>你好哇~ {{ user.username }}</h2>
 
         <img src="/static?file=programming.jpg" alt=""><br>
 
         <a href="/login">login</a>
         <a href="/todo">todo</a>
+        {% if user.role == 1  %}
+            <a href="/admin/users">管理员画面</a>
+        {% endif %}
 
         <script type="text/javascript" src="/static?file=index.js"></script>
     </body>

@@ -7,7 +7,7 @@ def index(request):
     主页的处理函数, 返回主页的响应
     """
     u = current_user(request)
-    body = render_template('index.html', username=u.username)
+    body = render_template('index.html', user=u)
 
     return http_response(body)
 
