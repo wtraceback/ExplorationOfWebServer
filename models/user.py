@@ -1,4 +1,5 @@
 from models import Model
+from models.todo import Todo
 
 
 class User(Model):
@@ -43,3 +44,15 @@ class User(Model):
         1 为管理员权限
         """
         return self.role == 1
+
+    def todos(self):
+        """
+        数据关联 一对多的关系
+        """
+        # return [t for t in Todo.all() if t.user_id == self.id]
+        ts = []
+        for t in Todo.all():
+            if t.user_id == self.id:
+                ts.append(t)
+
+        return ts
