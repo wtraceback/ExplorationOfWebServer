@@ -23,14 +23,14 @@ def update_password(request):
     """
     form = request.form()
     user_id = int(form.get('id', -1))
-    new_password = int(form.get('password', ''))
+    new_password = form.get('password', '')
 
     # 根据 id 寻找对应的用户
     u = User.find_by(id=user_id)
     result = ''
 
     if u is not None:
-        u.password = new_password
+        u.password = u.salt_hashed_password(new_password)
         u.save()
         result = '密码更新成功'
 

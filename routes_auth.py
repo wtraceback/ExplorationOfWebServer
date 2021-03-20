@@ -38,9 +38,11 @@ def register(request):
         form = request.form()
         u = User(form)
         if u.validate_register():
-            u.save()
-            result = '注册成功'
-            return redirect('/login')
+            if u.add_user() is not None:
+                result = '注册成功'
+                return redirect('/login')
+            else:
+                result = '该用户已存在，请使用另外的用户名去注册'
         else:
             result = '用户名或者密码长度必须大于2'
     else:
