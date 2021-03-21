@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Weibo 练习</title>
+    </head>
+    <body>
+        <h1>Weibo 广场</h1>
+        <a href="/weibo/personal_index">weibo 个人主页</a>
+
+        {% for w in weibos %}
+            <div class="">
+                {{ w.user_id }}: {{ w.content }}
+            </div>
+        {% endfor %}
+    </body>
+</html>

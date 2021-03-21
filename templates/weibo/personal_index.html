@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Weibo 个人主页</title>
+    </head>
+    <body>
+        <h1>Weibo 个人主页</h1>
+
+        <a href="/weibo/index">前往 weibo 广场</a>
+
+        <form action="/weibo/add" method="post">
+            <input type="text" name="content">
+            <button type="submit">发表 weibo</button>
+        </form>
+
+        {% for w in weibos %}
+            <div class="">
+                {{ w.id }}: {{ w.content }}
+                <a href="/weibo/edit?id={{ w.id }}">编辑</a>
+                <a href="/weibo/delete?id={{ w.id }}">删除</a>
+            </div>
+        {% endfor %}
+    </body>
+</html>

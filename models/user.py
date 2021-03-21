@@ -1,5 +1,6 @@
 from models import Model
 from models.todo import Todo
+from models.weibo import Weibo
 
 
 class User(Model):
@@ -76,6 +77,13 @@ class User(Model):
                 ts.append(t)
 
         return ts
+
+    def weibos(self):
+        """
+        数据关联 一对多的关系
+        """
+        # return [t for t in Weibo.all() if t.user_id == self.id]
+        return Weibo.find_all(user_id=self.id)
 
     def hashed_password(self, password):
         """
