@@ -1,7 +1,7 @@
 import socket
 import urllib.parse
 
-from routes import route_dict
+from routes.routes_index import route_dict
 from routes.routes_auth import route_dict as auth_routes
 from routes.routes_static import route_dict as static_routes
 from routes.routes_todo import route_dict as todo_routes

@@ -1,6 +1,7 @@
 from models.user import User
-from utils import random_str, session, response_with_headers, \
+from utils import random_str, response_with_headers, \
                     redirect, login_required, render_template, http_response
+from routes.session import session
 
 
 def login(request):

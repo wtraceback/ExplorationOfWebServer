@@ -4,6 +4,7 @@ from jinja2 import FileSystemLoader, Environment
 import os.path
 
 from models.user import User
+from routes.session import session
 
 
 def log(*args, **kwargs):
@@ -17,15 +18,6 @@ def log(*args, **kwargs):
     with open('logs/demo.log', 'a', encoding='utf-8') as f:
         # print(*objects, sep=' ', end='\n', file=sys.stdout, flush=False)
         print(dt, *args, file=f, **kwargs)
-
-
-# session 在服务器端实现过期功能
-session = {
-    # 'sessionid': {
-    #     'username': 'test',
-    #     'expired': '2021-03-14 16:07:08',
-    # }
-}
 
 
 def login_required(route_func):
