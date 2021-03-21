@@ -1,7 +1,8 @@
-from utils import current_user, render_template, http_response, redirect
+from utils import current_user, render_template, http_response, redirect, login_required
 from models.user import User
 
 
+@login_required
 def admin_users(request):
     """
     管理员权限：查看所有的用户信息
@@ -17,6 +18,7 @@ def admin_users(request):
         return redirect('/login')
 
 
+@login_required
 def update_password(request):
     """
     管理员修改任意用户的密码

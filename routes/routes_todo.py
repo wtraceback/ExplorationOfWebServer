@@ -1,9 +1,10 @@
 import time
 
-from utils import render_template, http_response, redirect, current_user
+from utils import render_template, http_response, redirect, current_user, login_required
 from models.todo import Todo
 
 
+@login_required
 def todo_index(request):
     """
     todo 程序的主页
@@ -19,6 +20,7 @@ def todo_index(request):
     return http_response(body)
 
 
+@login_required
 def todo_add(request):
     """
     接受浏览器发过来的添加 todo 请求
@@ -35,6 +37,7 @@ def todo_add(request):
     return redirect('/todo')
 
 
+@login_required
 def todo_delete(request):
     """
     删除一个 todo
@@ -45,6 +48,7 @@ def todo_delete(request):
     return redirect('/todo')
 
 
+@login_required
 def todo_edit(request):
     """
     进入 todo 画面
