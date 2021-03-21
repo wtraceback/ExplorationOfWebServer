@@ -1,5 +1,6 @@
-from utils import render_template, http_response, current_user, redirect
+from utils import render_template, http_response, current_user, redirect, login_required
 from models.weibo import Weibo
+from models.comment import Comment
 
 
 def weibo_index(request):
@@ -13,6 +14,7 @@ def weibo_index(request):
     return http_response(body)
 
 
+@login_required
 def weibo_personal_index(request):
     """
     个人主页
@@ -26,6 +28,7 @@ def weibo_personal_index(request):
     return http_response(body)
 
 
+@login_required
 def weibo_add(request):
     """
     接受浏览器发过来的添加 weibo 请求
@@ -45,6 +48,7 @@ def weibo_add(request):
         return redirect('/weibo/index')
 
 
+@login_required
 def weibo_delete(request):
     """
     删除一个 weibo
@@ -55,6 +59,7 @@ def weibo_delete(request):
     return redirect('/weibo/personal_index')
 
 
+@login_required
 def weibo_edit(request):
     """
     进入 weibo 画面
@@ -77,10 +82,25 @@ def weibo_edit(request):
     return http_response(body)
 
 
+@login_required
+def comment_add(request):
+    """
+    weibo 评论的添加
+    """
+    form = request.form()
+    u = current_user(request)
+    user_id = u.id
+    c = Comment(form, user_id)
+    c.save()
+
+    return redirect('/weibo/index')
+
+
 route_dict = {
     '/weibo/index': weibo_index,
     '/weibo/personal_index': weibo_personal_index,
     '/weibo/add': weibo_add,
     '/weibo/delete': weibo_delete,
     '/weibo/edit': weibo_edit,
+    '/comment/add': comment_add,
 }

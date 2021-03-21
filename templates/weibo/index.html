@@ -3,15 +3,41 @@
     <head>
         <meta charset="utf-8">
         <title>Weibo 练习</title>
+        <style media="screen">
+            .weibo {
+                border-bottom: #ccc 1px solid;
+            }
+
+            .comments {
+                border-bottom: #0f0 1px solid;
+                margin-left: 20px;
+            }
+        </style>
     </head>
     <body>
         <h1>Weibo 广场</h1>
         <a href="/weibo/personal_index">weibo 个人主页</a>
 
         {% for w in weibos %}
-            <div class="">
-                {{ w.user_id }}: {{ w.content }}
+            <div class="weibo">
+                {{ w.user().username }}: {{ w.content }}
+
+                <div class="comments">
+                    <div>评论区:</div>
+                    {% for c in w.comments() %}
+                        <div class="comment">
+                            {{ c.user().username }}: {{ c.content }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <form action="/comment/add" method="post">
+                    <input type="hidden" name="weibo_id" value="{{ w.id }}">
+                    <input type="text" name="content">
+                    <button type="submit">添加评论</button>
+                </form>
             </div>
+            <br>
         {% endfor %}
     </body>
 </html>

@@ -11,6 +11,24 @@ class Weibo(Model):
         # 和用户的 id 相关联，表明拥有它的 user 实例
         self.user_id = form.get('user_id', user_id)
 
+    def user(self):
+        """
+        根据 user_id 找到当前的用户
+        返回一个 User 的实例
+        """
+        from models.user import User
+        u = User.find_by(id=self.user_id)
+
+        return u
+
+    def comments(self):
+        """
+        当前 weibo 的所有评论
+        """
+        # return [c for c in Comment.all() if c.weibo_id == self.id]
+        from models.comment import Comment
+        return Comment.find_all(weibo_id=self.id)
+
     @classmethod
     def new(cls, form, user_id=-1):
         """
