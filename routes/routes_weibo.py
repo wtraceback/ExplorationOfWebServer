@@ -6,6 +6,7 @@ from models.comment import Comment
 def weibo_index(request):
     """
     微博程序的主页
+    微博程序，和之前 todo 程序的不同之处是带有评论功能
     """
     # 获取所有的 weibo
     weibos = Weibo.all()
