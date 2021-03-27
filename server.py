@@ -8,7 +8,12 @@ from routes.routes_static import route_dict as static_routes
 from routes.routes_todo import route_dict as todo_routes
 from routes.routes_admin import route_dict as admin_routes
 from routes.routes_weibo import route_dict as weibo_routes
-from utils import log
+from routes.routes_api_todo import route_dict as api_todo_routes
+from routes.api_todo import route_dict as api_todo
+from utils import (
+    log,
+    error,
+)
 
 
 # 定义一个 class 用于保存请求的数据
@@ -69,16 +74,12 @@ class Request(object):
 
         return f
 
-
-def error(request, code=404):
-    """
-    根据 code 返回不同的错误响应
-    """
-    e = {
-        404: b'HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<h1>NOT FOUND</h1>',
-    }
-
-    return e.get(code, b'')
+    def json(self):
+        """
+        把 body 中的 json 格式字符串解析成 dict 或者 list 并返回
+        """
+        import json
+        return json.loads(self.body)
 
 
 def parsed_path(path):
@@ -121,6 +122,8 @@ def response_for_path(path, request):
     r.update(todo_routes)
     r.update(admin_routes)
     r.update(weibo_routes)
+    r.update(api_todo_routes)
+    r.update(api_todo)
 
     response = r.get(path, error)
 
@@ -156,6 +159,7 @@ def process_request(connection):
     # Chrome 浏览器会发送空请求导致 split 得到空 list， 所以需要判断一下，防止程序崩溃
     if len(r.split()) < 2:
         connection.close()
+        return None
 
     # 创建一个新的 request 并设置
     request = Request()

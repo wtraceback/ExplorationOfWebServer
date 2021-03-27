@@ -2,6 +2,7 @@ import random
 import time
 from jinja2 import FileSystemLoader, Environment
 import os.path
+import json
 
 from models.user import User
 from routes.session import session
@@ -147,3 +148,33 @@ def render_template(path, **kwargs):
     r = template.render(**kwargs)           # 调用 render() 方法渲染模板
 
     return r
+
+
+def error(request, code=404):
+    """
+    根据 code 返回不同的错误响应
+    """
+    e = {
+        404: b'HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<h1>NOT FOUND</h1>',
+    }
+
+    return e.get(code, b'')
+
+
+def json_response(data):
+    """
+    json 格式的 body 数据
+    返回 response 响应
+    """
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    header = response_with_headers(headers)
+    # json.dumps 用于把 list 或者 dict 转化为 json 格式的字符串
+    # indent=4 表示格式化缩进, 方便好看用的
+    # ensure_ascii=False 可以正确处理中文
+    body = json.dumps(data, indent=4, ensure_ascii=False)
+    r = header + '\r\n' + body
+
+    return r.encode('utf-8')

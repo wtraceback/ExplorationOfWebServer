@@ -163,3 +163,13 @@ class Model(object):
         s = '\n'.join(properties)
 
         return '< {}\n{} >\n'.format(classname, s)
+
+    def object_to_dict(self):
+        """
+        返回当前 model 的字典表示
+        """
+        # Python 字典 copy() 函数返回一个字典的浅复制。
+        # dict.copy()
+        # 浅拷贝：深拷贝父对象（一级目录），子对象（二级目录）不拷贝，子对象是引用
+        d = self.__dict__.copy()
+        return d
