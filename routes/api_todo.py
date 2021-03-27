@@ -3,6 +3,7 @@ import json
 from models.todo import Todo
 from utils import (
     json_response,
+    current_user,
 )
 
 
@@ -10,7 +11,8 @@ def all(request):
     """
     返回所有的 todo
     """
-    todo_list = Todo.all()
+    u = current_user(request)
+    todo_list = u.todos()
     todos = [t.object_to_dict() for t in todo_list]
 
     return json_response(todos)
@@ -22,8 +24,10 @@ def add(request):
     添加新的 todo
     将添加的 todo 的数据返回给浏览器
     """
+    u = current_user(request)
+    user_id = u.id
     form = request.json()
-    t = Todo.new(form)
+    t = Todo.new(form, user_id)
 
     return json_response(t.object_to_dict())
 

@@ -64,13 +64,13 @@ class Request(object):
         #解决地址栏中 中文编码问题
             typename = urllib.parse.quote(index)
         #解码
-            retypename = urllib.parse.unquote(typename)
+            retypename = urllib.parse.unquote_plus(typename)
         """
         args = self.body.split('&')
         f = {}
         for arg in args:
             k, v = arg.split('=')
-            f[k] = urllib.parse.unquote(v)
+            f[k] = urllib.parse.unquote_plus(v)
 
         return f
 
@@ -154,7 +154,7 @@ def process_request(connection):
     # 获取请求的数据
     r = receive_by_request(connection)
     r = r.decode('utf-8')
-    log('request is:\n {}'.format(r))
+    log('request is:\n{}'.format(r))
 
     # Chrome 浏览器会发送空请求导致 split 得到空 list， 所以需要判断一下，防止程序崩溃
     if len(r.split()) < 2:
