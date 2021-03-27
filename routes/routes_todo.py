@@ -62,7 +62,7 @@ def todo_edit(request):
         # 把 post 请求的 body 解析为一个字典
         form = request.form()
         todo.task = form.get('task')
-        todo.updated_time = int(time.time())
+        todo.ut = int(time.time())
         todo.save()
 
         return redirect('/todo')
