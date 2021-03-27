@@ -110,9 +110,89 @@ var bindEventTodoDelete = function() {
     })
 }
 
+/*
+    edit 输入框的模板
+*/
+var insertEditForm = function(cell) {
+    // 由于每一条 todo 都会有这个编辑框，因此不能添加 id 属性
+    var form = `
+        <div class='todo-edit-form'>
+            <input type="text" class="todo-edit-input">
+            <button class="todo-update">更新</button>
+        </div>
+    `
+
+    cell.insertAdjacentHTML('beforeend', form)
+}
+
+/*
+    编辑 todo
+*/
+var bindEventTodoEdit = function() {
+    var todo_list = $('.todo-list')
+    todo_list.addEventListener('click', function(event) {
+        var self = event.target
+        if (self.classList.contains('todo-edit')) {
+            // 编辑这个 todo，在元素的下方添加输入框和 update 按钮
+            var cell = self.parentElement
+
+            // 添加 if 判断，用于判断是否已经存在了更新标签，防止重复添加
+            if (cell.querySelector('.todo-edit-form') == null) {
+                insertEditForm(cell)
+            }
+        }
+    })
+}
+
+var apiTodoUpdate = function(form, callback) {
+    var path = '/api/todo/update'
+    ajax('POST', path, form, callback)
+}
+
+/*
+    更新 todo
+*/
+var bindEventTodoUpdate = function() {
+    var todo_list = $('.todo-list')
+    todo_list.addEventListener('click', function(event) {
+        var self = event.target
+        if (self.classList.contains('todo-update')) {
+            // 获取对应 todo 中的 input 的值
+            var edit_form = self.parentElement
+            var input = edit_form.querySelector('.todo-edit-input')
+            var task = input.value
+            // 通过 closest 方法找到最近的直系父节点，获取当前 todo 的 id
+            var cell = self.closest('.todo-cell')
+            var todo_id = cell.dataset.id
+            var form = {
+                'id': todo_id,
+                'task': task,
+            }
+
+            apiTodoUpdate(form, function(r) {
+                var todo = JSON.parse(r)
+                // var selector = '#todo-' + todo.id
+                // var cell = $(selector)
+                // 上面的 cell 变量依然还可以在匿名函数中使用
+                var task_content = cell.querySelector('.todo-task')
+                var ut_content = cell.querySelector('.todo-ut')
+                task_content.innerHTML = todo.task
+                ut_content.innerHTML = dateFormat(todo.ut)
+
+                // 更新成功后，清除 edit-form
+                edit_form.remove()
+
+                // 方法二，将一整个 todo-cell 标签替换掉
+            })
+        }
+    })
+}
+
 var bindEvents = function() {
     bindEventTodoAdd()
     bindEventTodoDelete()
+    bindEventTodoEdit()
+    bindEventTodoUpdate()
 }
 
 var __main = function() {

@@ -43,10 +43,24 @@ def delete(request):
         return json_response(t.object_to_dict())
 
 
+def update(request):
+    """
+    更新 todo
+    跟 delete 的 todo id 在 url 中的不同之处
+    update 的 todo id 在 request 的 body 中
+    """
+    form = request.json()
+    todo_id = int(form.get('id'))
+    t = Todo.update(todo_id, form)
+
+    return json_response(t.object_to_dict())
+
+
 # api 文件只返回 json 格式的数据
 # 而不是 html 格式的数据
 route_dict = {
     '/api/todo/all': all,
     '/api/todo/add': add,
     '/api/todo/delete': delete,
+    '/api/todo/update': update,
 }

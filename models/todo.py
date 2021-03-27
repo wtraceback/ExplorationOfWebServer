@@ -56,4 +56,8 @@ class Todo(Model):
             if key in valid_names:
                 setattr(t, key, form[key])
 
+        # 更改 ut 时间
+        t.ut = int(time.time())
         t.save()
+
+        return t
