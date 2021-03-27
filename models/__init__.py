@@ -115,12 +115,15 @@ class Model(object):
                 break
 
         if index == -1:
-            pass
+            return None
         else:
-            models.pop(index)
+            obj = models.pop(index)
             data = [m.__dict__ for m in models]
             path = cls.db_path()
             save(data, path)
+
+            # 返回被删除的元素
+            return obj
 
     def save(self):
         """

@@ -161,7 +161,7 @@ def error(request, code=404):
     return e.get(code, b'')
 
 
-def json_response(data):
+def json_response(data={}):
     """
     json 格式的 body 数据
     返回 response 响应
