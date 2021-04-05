@@ -2,9 +2,21 @@
 <html lang="en" dir="ltr">
     <head>
         <meta charset="utf-8">
-        <title></title>
+        <title>博客主页</title>
     </head>
     <body>
         <h1>Hello World</h1>
+        <a href="/blog/new">新建博客</a>
+
+        <div class="blog-list">
+            博客列表：
+            {% for b in blogs %}
+                <div>
+                    <a href="/blog/{{b.id}}">
+                        {{ b.title }} @ {{ b.ct }} by {{ b.author }}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </body>
 </html>
