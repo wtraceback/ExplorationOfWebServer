@@ -54,7 +54,18 @@ def register(request):
     return http_response(body)
 
 
+@login_required
+def logout(request):
+    """
+    退出登录
+    """
+    str_id = request.cookies.get('user')
+    session.pop(str_id)
+    return redirect('/login')
+
+
 route_dict = {
     '/login': login,
     '/register': register,
+    '/logout': logout,
 }
