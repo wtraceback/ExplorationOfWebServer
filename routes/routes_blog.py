@@ -32,8 +32,19 @@ def add(request):
     return redirect('/blog/index')
 
 
+def post(request):
+    """
+    根据 id 显示博文
+    """
+    blog_id = int(request.query.get('id', -1))
+    blog = Blog.find_by(id=blog_id)
+    body = render_template('blog/post.html', blog=blog)
+    return http_response(body)
+
+
 route_dict = {
     '/blog/index': index,
     '/blog/new': new,
     '/blog/add': add,
+    '/blog/post': post,
 }

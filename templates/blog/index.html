@@ -12,8 +12,8 @@
             博客列表：
             {% for b in blogs %}
                 <div>
-                    <a href="/blog/{{b.id}}">
-                        {{ b.title }} @ {{ b.ct }} by {{ b.author }}
+                    <a href="/blog/post?id={{b.id}}">
+                        {{ b.title }} @ {{ b.format_datetime(b.ct) }} by {{ b.author }}
                     </a>
                 </div>
             {% endfor %}

@@ -22,16 +22,6 @@ class Todo(Model):
             self.ct = int(time.time())
             self.ut = self.ct
 
-    def format_datetime(self, unix_time):
-        """
-        格式化创建日期
-        格式化成 2021-03-18 08:33:04 形式
-        """
-        value = time.localtime(unix_time)
-        dt = time.strftime("%Y-%m-%d %H:%M:%S", value)
-
-        return dt
-
     @classmethod
     def new(cls, form, user_id=-1):
         """

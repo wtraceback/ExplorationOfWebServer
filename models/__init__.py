@@ -1,4 +1,5 @@
 import json
+import time
 """
 json 是一种时下非常流行的数据格式
 在 Python 中可以方便地使用 json 格式序列化/反序列化字典或者列表
@@ -176,3 +177,13 @@ class Model(object):
         # 浅拷贝：深拷贝父对象（一级目录），子对象（二级目录）不拷贝，子对象是引用
         d = self.__dict__.copy()
         return d
+
+    def format_datetime(self, unix_time):
+        """
+        格式化创建日期
+        格式化成 2021-03-18 08:33:04 形式
+        """
+        value = time.localtime(unix_time)
+        dt = time.strftime("%Y-%m-%d %H:%M:%S", value)
+
+        return dt
