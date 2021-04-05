@@ -10,6 +10,7 @@ from routes.routes_admin import route_dict as admin_routes
 from routes.routes_weibo import route_dict as weibo_routes
 from routes.routes_api_todo import route_dict as api_todo_routes
 from routes.api_todo import route_dict as api_todo
+from routes.routes_blog import route_dict as blog_routes
 from utils import (
     log,
     error,
@@ -124,6 +125,7 @@ def response_for_path(path, request):
     r.update(weibo_routes)
     r.update(api_todo_routes)
     r.update(api_todo)
+    r.update(blog_routes)
 
     response = r.get(path, error)
 
