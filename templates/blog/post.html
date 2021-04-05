@@ -10,5 +10,22 @@
         <h3>发布者：{{ blog.author }}</h3>
         <p>博客正文：{{ blog.content }}</p>
         <p>发布时间：{{ blog.format_datetime(blog.ct) }}</p>
+
+        <br>
+        <form action="/blog/comment/new" method="post">
+            <input type="hidden" name="blog_id" value="{{ blog.id }}">
+            <input type="text" name="author" placeholder="author">
+            <input type="text" name="content" placeholder="content">
+            <button type="submit">提交评论</button>
+        </form>
+
+        <div>
+            --------评论区--------
+            {% for c in comments %}
+                <div>
+                    {{ c.content }} @ {{ c.format_datetime(c.ct) }} by {{ c.author }}
+                </div>
+            {% endfor %}
+        </div>
     </body>
 </html>

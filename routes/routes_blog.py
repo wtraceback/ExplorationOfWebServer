@@ -1,4 +1,7 @@
-from models.blog import Blog
+from models.blog import (
+    Blog,
+    BlogComment,
+)
 from utils import (
     render_template,
     http_response,
@@ -38,8 +41,18 @@ def post(request):
     """
     blog_id = int(request.query.get('id', -1))
     blog = Blog.find_by(id=blog_id)
-    body = render_template('blog/post.html', blog=blog)
+    comments = BlogComment.find_all(blog_id=blog_id)
+    body = render_template('blog/post.html', blog=blog, comments=comments)
     return http_response(body)
+
+
+def comment(request):
+    """
+    添加新的评论
+    """
+    form = request.form()
+    BlogComment.new(form)
+    return redirect('/blog/post?id=' + str(form.get('blog_id')))
 
 
 route_dict = {
@@ -47,4 +60,5 @@ route_dict = {
     '/blog/new': new,
     '/blog/add': add,
     '/blog/post': post,
+    '/blog/comment/new': comment,
 }
