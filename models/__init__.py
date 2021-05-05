@@ -1,5 +1,6 @@
 import json
 import time
+import os
 """
 json 是一种时下非常流行的数据格式
 在 Python 中可以方便地使用 json 格式序列化/反序列化字典或者列表
@@ -44,7 +45,14 @@ class Model(object):
         获取调用类的类名，然后返回对应的类存储数据的路径
         """
         classname = cls.__name__
-        path = 'db/{}.json'.format(classname)
+        db = 'db'
+        path = '{}/{}.json'.format(db, classname)
+
+        # 判断目录或文件是否存在，如果不存在，则创建目录和 json 文件
+        if not os.path.exists(db):
+            os.mkdir(db)
+        if not os.path.exists(path):
+            save([], path)
 
         return path
 
